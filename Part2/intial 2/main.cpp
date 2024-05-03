@@ -10,6 +10,7 @@
 //The library here is concretely set, students are not allowed to include any other libraries.
 
 #include "study_in_pink2.h"
+#include "study_in_pink2.cpp"
 
 using namespace std;
 
