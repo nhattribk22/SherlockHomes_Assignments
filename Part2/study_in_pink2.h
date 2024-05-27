@@ -223,7 +223,7 @@ protected:
     string name;
 
 public:
-    //static const Position npos;
+    // static const Position npos;
     MovingObject(int index, const Position pos, Map *map, const string &name = "") : index(index), pos(pos), map(map), name(name) {}
     virtual ~MovingObject() {}
     virtual Position getNextPosition() = 0;
@@ -234,7 +234,7 @@ public:
     virtual void move() = 0;
     virtual string str() const = 0;
 };
-//const Position MovingObject::npos = Position::npos;
+// const Position MovingObject::npos = Position::npos;
 
 class Character : public MovingObject
 {
@@ -437,7 +437,6 @@ public:
         arr = new MovingObject *[capacity];
     }
 
-    
     bool isFull() const
     {
         return count == capacity;
@@ -476,10 +475,10 @@ public:
     }
     ~ArrayMovingObject()
     {
-        for (int i = 0; i < count; ++i)
-        {
-            delete arr[i];
-        }
+        // for (int i = 0; i < count; ++i)
+        // {
+        //     delete arr[i];
+        // }
         delete[] arr;
     }
 };
@@ -771,6 +770,376 @@ public:
     ~StudyPinkProgram();
 };
 
+class Robot : public MovingObject
+{
+protected:
+    RobotType robot_type;
+    long long NUM = INT_MAX;
+    BaseItem *items;
+
+public:
+    Robot(int index, const Position &int_pos, Map *map, string name)
+        : MovingObject(index, int_pos, map, name), items(items) {}
+
+    void setRobotType(RobotType robot_type)
+    {
+        this->robot_type = robot_type;
+    }
+
+    RobotType getRobotType()
+    {
+        return this->robot_type;
+    }
+
+    void setItems(BaseItem *items)
+    {
+        this->items = items;
+    }
+
+    BaseItem *getItems()
+    {
+        return this->items;
+    }
+
+    void move() override
+    {
+        if (getNextPosition().isEqual(Position::npos))
+        {
+            return;
+        }
+        else
+        {
+            pos = getNextPosition();
+        }
+    };
+
+    int MahattanDistance(Position pos1, Position pos2) const
+    {
+        return abs(pos1.getRow() - pos2.getRow()) + abs(pos1.getCol() - pos2.getCol());
+    }
+
+    ~Robot()
+    {
+        delete items;
+    };
+};
+class RobotC : public Robot
+{
+private:
+    Criminal *criminal;
+
+public:
+    RobotC(int index, const Position &init_pos, Map *map, Criminal *criminal)
+        : Robot(index, init_pos, map, "RobotC"), criminal(criminal)
+    {
+        robot_type = C;
+    };
+    Position getNextPosition() override
+    {
+        return criminal->getCurrentPosition();
+    };
+    string str() const
+    {
+        return "Robot[pos=" + pos.str() + ";type=" + "C" + ";dist=]";
+    };
+    int getDistance(Sherlock *sherlock)
+    {
+        return MahattanDistance(this->pos, sherlock->getCurrentPosition());
+    }
+    int getDistance(Watson *watson)
+    {
+        return MahattanDistance(this->pos, watson->getCurrentPosition());
+    }
+};
+class RobotS : public Robot
+{
+private:
+    Criminal *criminal;
+    Sherlock *sherlock;
+
+public:
+    RobotS(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock) : Robot(index, init_pos, map, "RobotS"), criminal(criminal), sherlock(sherlock)
+    {
+        robot_type = S;
+    };
+    Position getNextPosition() override
+    {
+        Position *validPositions = new Position[4];
+        validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
+        validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
+        validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
+        validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
+
+        // Tìm vị trí hợp lệ
+        int minDistance = getDistance();
+        Position nextPos = Position::npos;
+        for (int i = 0; i < 4; i++)
+        {
+            if (map->isValid(validPositions[i], this))
+            {
+                int distanceToSherlock = MahattanDistance(validPositions[i], sherlock->getCurrentPosition());
+                if (distanceToSherlock < minDistance)
+                {
+                    minDistance = distanceToSherlock;
+                    nextPos = validPositions[i];
+                }
+            }
+        }
+        return nextPos;
+    };
+    string str() const override
+    {
+        return "Robot[pos=" + pos.str() + ";type=" + "S" + ";dist=" + to_string(getDistance()) + "]";
+    };
+    int getDistance() const
+    {
+        return MahattanDistance(this->pos, sherlock->getCurrentPosition());
+    }
+};
+class RobotW : public Robot
+{
+private:
+    Criminal *criminal;
+    Watson *watson;
+
+public:
+    RobotW(int index, const Position &init_pos, Map *map, Criminal *criminal, Watson *watson) : Robot(index, init_pos, map, "RobotW"), criminal(criminal), watson(watson)
+    {
+        robot_type = W;
+    };
+    Position getNextPosition() override
+    {
+        Position *validPositions = new Position[4];
+        validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
+        validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
+        validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
+        validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
+
+        // Tìm vị trí hợp lệ
+        int minDistance = getDistance();
+        Position nextPos = Position::npos;
+        for (int i = 0; i < 4; i++)
+        {
+            if (map->isValid(validPositions[i], this))
+            {
+                int distanceToWatson = MahattanDistance(validPositions[i], watson->getCurrentPosition());
+                if (distanceToWatson < minDistance)
+                {
+                    minDistance = distanceToWatson;
+                    nextPos = validPositions[i];
+                }
+            }
+        }
+        return nextPos;
+    };
+    string str() const
+    {
+        return "Robot[pos=" + pos.str() + ";type=" + "W" + ";dist=" + to_string(getDistance()) + "]";
+    };
+    int getDistance() const
+    {
+        return MahattanDistance(this->pos, watson->getCurrentPosition());
+    }
+};
+class RobotSW : public Robot
+{
+private:
+    Criminal *criminal;
+    Sherlock *sherlock;
+    Watson *watson;
+
+public:
+    RobotSW(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson) : Robot(index, init_pos, map, "RobotSW"), criminal(criminal), sherlock(sherlock), watson(watson)
+    {
+        robot_type = SW;
+    };
+    Position getNextPosition() override
+    {
+        Position *validPositions = new Position[4];
+        validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
+        validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
+        validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
+        validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
+
+        // Tìm vị trí hợp lệ
+        int minDistance = getDistance();
+        Position nextPos = Position::npos;
+        for (int i = 0; i < 4; i++)
+        {
+            if (map->isValid(validPositions[i], this))
+            {
+                int distanceToSherlock = MahattanDistance(validPositions[i], sherlock->getCurrentPosition());
+                int distanceToWatson = MahattanDistance(validPositions[i], watson->getCurrentPosition());
+                int totalDistance = distanceToSherlock + distanceToWatson;
+                if (totalDistance < minDistance)
+                {
+                    minDistance = distanceToWatson;
+                    nextPos = validPositions[i];
+                }
+            }
+        }
+        return nextPos;
+    };
+    string str() const
+    {
+        return "Robot[pos=" + pos.str() + ";type=" + "SW" + ";dist=" + to_string(getDistance()) + "]";
+    };
+    int getDistance() const
+    {
+        return MahattanDistance(this->pos, sherlock->getCurrentPosition()) + MahattanDistance(this->pos, watson->getCurrentPosition());
+    }
+};
+
+class BaseItem
+{
+public:
+    virtual bool canUse(Character *obj, Robot *robot) = 0;
+    virtual void use(Character *obj, Robot *robot) = 0;
+    virtual ItemType getType() const = 0;
+};
+class MagicBook : public BaseItem
+{
+public:
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    ItemType getType() const override;
+};
+class EnergyDrink : public BaseItem
+{
+public:
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    ItemType getType() const override;
+};
+class FirstAid : public BaseItem
+{
+public:
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    ItemType getType() const override;
+};
+class ExcemptionCard : public BaseItem
+{
+public:
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    ItemType getType() const override;
+};
+class PassingCard : public BaseItem
+{
+public:
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    ItemType getType() const override;
+};
+// Túi đồ
+class Node
+{
+public:
+    BaseItem *item;
+    Node *next;
+    Node(BaseItem *item, Node *next) : item(item), next(next) {}
+};
+class BaseBag
+{
+public:
+    Character *obj;
+    virtual bool insert(BaseItem *item) = 0;
+    virtual BaseItem *get() = 0;
+    virtual BaseItem *get(ItemType type) = 0;
+    virtual string str() const = 0;
+};
+class SherlockBag : public BaseBag
+{
+private:
+    int size;
+    int capacity;
+    Node *head = nullptr;
+public:
+    SherlockBag(Sherlock *shrk) : size(0), capacity(13)
+    {
+        this->obj = (Character *)shrk;
+    }
+    BaseItem* get() override;
+    BaseItem* get(ItemType type) override;
+    string str() const override {
+        string arr[5] = { "MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
+        string result = "Bag[count=" + to_string(this->size) + ";";
+        Node *node = this->head;
+        if(node == nullptr) return result + "]";
+        while(node->next != nullptr){
+            result += arr[node->item->getType()] + ", ";
+        }
+        result += arr[node->item->getType()] + "]";
+    }
+    Node* getItem(ItemType type){
+        Node* curr = this->head;
+        while(curr != nullptr){
+            if(curr->item->getType() == type){
+                return curr;
+            }
+        }
+        return nullptr;
+    }
+    bool insert(BaseItem* item) override{
+        Node* newNode = new Node(item, nullptr);
+        if(this->size == this->capacity){
+            return false;
+        }
+        else{
+            newNode->next = this->head;
+            this->head = newNode;
+        }
+        this->size++;
+        return true;
+    }
+
+};
+class WatsonBag : public BaseBag
+{
+private:
+    int size;
+    int capacity;
+    Node *head = nullptr;
+public:
+    WatsonBag(Watson *wast) : size(0), capacity(15)
+    {
+        this->obj = (Character *) wast;
+    }
+    BaseItem* get() override;
+    BaseItem* get(ItemType type) override;
+    string str() const override {
+        string arr[5] = { "MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
+        string result = "Bag[count=" + to_string(this->size) + ";";
+        Node *node = this->head;
+        if(node == nullptr) return result + "]";
+        while(node->next != nullptr){
+            result += arr[node->item->getType()] + ", ";
+        }
+        result += arr[node->item->getType()] + "]";
+    }
+    Node* getItem(ItemType type){
+        Node* curr = this->head;
+        while(curr != nullptr){
+            if(curr->item->getType() == type){
+                return curr;
+            }
+        }
+        return nullptr;
+    }
+    bool insert(BaseItem* item) override{
+        Node* newNode = new Node(item, nullptr);
+        if(this->size == this->capacity){
+            return false;
+        }
+        else{
+            newNode->next = this->head;
+            this->head = newNode;
+        }
+        this->size++;
+        return true;
+    }
+};
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ////////////////////////////////////////////////
