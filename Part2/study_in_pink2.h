@@ -72,7 +72,7 @@ protected:
 public:
     MapElement(ElementType in_type) : type(in_type) {}
     virtual ~MapElement() {}
-    virtual ElementType getType() const{ return type;}
+    virtual ElementType getType() const { return type; }
 };
 
 class Path : public MapElement
@@ -106,7 +106,7 @@ private:
 
 public:
     static const Position npos;
-    Position(int r = 0, int c = 0) : r(r), c(c){}
+    Position(int r = 0, int c = 0) : r(r), c(c) {}
 
     Position(const string &str_pos)
     {
@@ -154,6 +154,7 @@ class Map
 private:
     int num_rows, num_cols;
     MapElement ***map;
+
 public:
     Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls) : num_rows(num_rows), num_cols(num_cols)
     {
@@ -201,7 +202,8 @@ public:
     {
         return map;
     }
-    bool isValid(const Position &pos, MovingObject *mv_obj) const{
+    bool isValid(const Position &pos, MovingObject *mv_obj) const
+    {
         int r = pos.getRow();
         int c = pos.getCol();
         if (r < 0 || r >= num_rows || c < 0 || c >= num_cols)
@@ -212,7 +214,6 @@ public:
     }
 };
 
-
 class MovingObject
 {
 protected:
@@ -220,9 +221,10 @@ protected:
     Position pos;
     Map *map;
     string name;
+
 public:
-    static const Position npos; 
-    MovingObject(int index, const Position pos, Map *map, const string &name = ""): index(index), pos(pos), map(map), name(name) {}
+    static const Position npos;
+    MovingObject(int index, const Position pos, Map *map, const string &name = "") : index(index), pos(pos), map(map), name(name) {}
     virtual ~MovingObject() {}
     virtual Position getNextPosition() = 0;
     Position getCurrentPosition() const
@@ -231,15 +233,15 @@ public:
     }
     virtual void move() = 0;
     virtual string str() const = 0;
-    
 };
-const Position Position::npos = Position(-1,-1);
-const Position MovingObject::npos = Position::npos; 
+const Position Position::npos = Position(-1, -1);
+const Position MovingObject::npos = Position::npos;
 
-class Character : public MovingObject {
+class Character : public MovingObject
+{
 public:
-    Character(int index, const Position pos, Map * map, const string & name) : MovingObject(index, pos, map, name) {}    
-    //int temp_moving = 0;
+    Character(int index, const Position pos, Map *map, const string &name) : MovingObject(index, pos, map, name) {}
+    // int temp_moving = 0;
 };
 
 class Sherlock : public Character /* TODO */
@@ -254,7 +256,7 @@ private:
 public:
     Sherlock(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp)
         : Character(index, init_pos, map, "Sherlock"), moving_rule(moving_rule), hp(init_hp > 500 ? 500 : init_hp), exp(init_exp > 900 ? 900 : init_exp), current_rule_index(0){};
-    
+
     Position getNextPosition() override
     {
         if (hp == 0 || exp == 0)
@@ -310,6 +312,7 @@ private:
     int hp;
     int exp;
     size_t current_rule_index;
+
 public:
     Watson(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp)
         : Character(index, init_pos, map, "Waston"), moving_rule(moving_rule), hp(init_hp > 500 ? 500 : init_hp), exp(init_exp > 900 ? 900 : init_exp), current_rule_index(0){};
@@ -476,74 +479,155 @@ public:
     }
 };
 
-class Configuration
-{
-    friend class StudyPinkProgram;
-
+class Configuration {
 private:
-    // TODO
-    int map_num_rows, map_num_cols; // Number of rows and columns of the map
-    int max_num_moving_objects;     // max elements in the array of moving objects
-    int num_walls;                  // Number of walls
-    Position *array_walls;          // Array of wall positions
-    int num_fake_walls;             // Number of fake walls
-    Position *array_fake_walls;     // Array of fake wall positions
-    string sherlock_moving_rule;    // Sherlock's moving rule
-    Position sherlock_init_pos;     // Sherlock's initial position
-    int sherlock_init_hp;           // Sherlock's initial HP
-    int sherlock_init_exp;          // Sherlock's initial EXP
-    string watson_moving_rule;      // Watson's moving rule
-    Position watson_init_pos;       // Watson's initial position
-    int watson_init_hp;             // Watson's initial HP
-    int watson_init_exp;            // Watson's initial EXP
-    Position criminal_init_pos;     // Criminal's initial position
-    int num_steps;                  // Number of steps
+    // Các thuộc tính riêng tư
+    int map_num_rows, map_num_cols;
+    int max_num_moving_objects;
+    int num_walls;
+    Position* array_walls;
+    int num_fake_walls;
+    Position* array_fake_walls;
+    string sherlock_moving_rule;
+    Position sherlock_init_pos;
+    int sherlock_init_hp;
+    int sherlock_init_exp;
+    string watson_moving_rule;
+    Position watson_init_pos;
+    int watson_init_hp;
+    int watson_init_exp;
+    Position criminal_init_pos;
+    int num_steps;
+
+    void parseArrayPositions(const string& str, Position*& array, int& count) {
+        count = 0;
+        stringstream ss(str);
+        char c;
+        while (ss >> c) {
+            if (c == '(') {
+                int r, p;
+                ss >> r >> c >> p >> c; // Read row, column, and closing parenthesis
+                count++;
+            }
+        }
+        array = new Position[count];
+        ss.clear();
+        ss.seekg(0);
+        for (int i = 0; i < count; ++i) {
+            ss >> c; // Skip '('
+            int r, p;
+            ss >> r >> c >> p >> c; // Read row, column, and closing parenthesis
+            array[i] = Position(r, p);
+        }
+    }
 
 public:
-    Configuration(const string &filepath);
-    ~Configuration();
-    string str() const
-    {
-        string result = "Configuration[\n";
-        result += "MAP_NUM_ROWS=" + to_string(map_num_rows) + "\n";
-        result += "MAP_NUM_COLS=" + to_string(map_num_cols) + "\n";
-        result += "MAX_NUM_MOVING_OBJECTS=" + to_string(max_num_moving_objects) + "\n";
-        result += "NUM_WALLS=" + to_string(num_walls) + "\n";
-
-        result += "ARRAY_WALLS=[";
-        for (int i = 0; i < num_walls; i++)
-        {
-            result += "(" + to_string(array_walls[i].getRow()) + "," + to_string(array_walls[i].getCol()) + ")";
-            if (i < num_walls - 1)
-                result += ";";
+    Configuration(const string& filepath) {
+        ifstream file(filepath);
+        if (!file.is_open()) {
+            throw runtime_error("Could not open file");
         }
-        result += "]\n";
 
-        result += "NUM_FAKE_WALLS=" + to_string(num_fake_walls) + "\n";
-
-        result += "ARRAY_FAKE_WALLS=[";
-        for (int i = 0; i < num_fake_walls; i++)
-        {
-            result += "(" + to_string(array_fake_walls[i].getRow()) + "," + to_string(array_fake_walls[i].getCol()) + ")";
-            if (i < num_fake_walls - 1)
-                result += ";";
+        string line;
+        while (getline(file, line)) {
+            if (line.find("MAP_NUM_ROWS=") == 0) {
+                map_num_rows = stoi(line.substr(strlen("MAP_NUM_ROWS=")));
+            } else if (line.find("MAP_NUM_COLS=") == 0) {
+                map_num_cols = stoi(line.substr(strlen("MAP_NUM_COLS=")));
+            } else if (line.find("MAX_NUM_MOVING_OBJECTS=") == 0) {
+                max_num_moving_objects = stoi(line.substr(strlen("MAX_NUM_MOVING_OBJECTS=")));
+            } else if (line.find("ARRAY_WALLS=") == 0) {
+                parseArrayPositions(line.substr(strlen("ARRAY_WALLS=")), array_walls, num_walls);
+            } else if (line.find("ARRAY_FAKE_WALLS=") == 0) {
+                parseArrayPositions(line.substr(strlen("ARRAY_FAKE_WALLS=")), array_fake_walls, num_fake_walls);
+            } else if (line.find("SHERLOCK_MOVING_RULE=") == 0) {
+                sherlock_moving_rule = line.substr(strlen("SHERLOCK_MOVING_RULE="));
+            } else if (line.find("SHERLOCK_INIT_POS=") == 0) {
+                int r, c;
+                sscanf(line.c_str(), "SHERLOCK_INIT_POS=(%d,%d)", &r, &c);
+                sherlock_init_pos = Position(r, c);
+            } else if (line.find("SHERLOCK_INIT_HP=") == 0) {
+                sherlock_init_hp = stoi(line.substr(strlen("SHERLOCK_INIT_HP=")));
+            } else if (line.find("SHERLOCK_INIT_EXP=") == 0) {
+                sherlock_init_exp = stoi(line.substr(strlen("SHERLOCK_INIT_EXP=")));
+            } else if (line.find("WATSON_MOVING_RULE=") == 0) {
+                watson_moving_rule = line.substr(strlen("WATSON_MOVING_RULE="));
+            } else if (line.find("WATSON_INIT_POS=") == 0) {
+                int r, c;
+                sscanf(line.c_str(), "WATSON_INIT_POS=(%d,%d)", &r, &c);
+                watson_init_pos = Position(r, c);
+            } else if (line.find("WATSON_INIT_HP=") == 0) {
+                watson_init_hp = stoi(line.substr(strlen("WATSON_INIT_HP=")));
+            } else if (line.find("WATSON_INIT_EXP=") == 0) {
+                watson_init_exp = stoi(line.substr(strlen("WATSON_INIT_EXP=")));
+            } else if (line.find("CRIMINAL_INIT_POS=") == 0) {
+                int r, c;
+                sscanf(line.c_str(), "CRIMINAL_INIT_POS=(%d,%d)", &r, &c);
+                criminal_init_pos = Position(r, c);
+            } else if (line.find("NUM_STEPS=") == 0) {
+                num_steps = stoi(line.substr(strlen("NUM_STEPS=")));
+            }
         }
-        result += "]\n";
-
-        result += "SHERLOCK_MOVING_RULE=" + sherlock_moving_rule + "\n";
-        result += "SHERLOCK_INIT_POS=(" + to_string(sherlock_init_pos.getRow()) + "," + to_string(sherlock_init_pos.getCol()) + ")\n";
-        result += "SHERLOCK_INIT_HP=" + to_string(sherlock_init_hp) + "\n";
-        result += "SHERLOCK_INIT_EXP=" + to_string(sherlock_init_exp) + "\n";
-        result += "WATSON_MOVING_RULE=" + watson_moving_rule + "\n";
-        result += "WATSON_INIT_POS=(" + to_string(watson_init_pos.getRow()) + "," + to_string(watson_init_pos.getCol()) + ")\n";
-        result += "WATSON_INIT_HP=" + to_string(watson_init_hp) + "\n";
-        result += "WATSON_INIT_EXP=" + to_string(watson_init_exp) + "\n";
-        result += "CRIMINAL_INIT_POS=(" + to_string(criminal_init_pos.getRow()) + "," + to_string(criminal_init_pos.getCol()) + ")\n";
-        result += "NUM_STEPS=" + to_string(num_steps) + "\n";
-        result += "]\n";
-
-        return result;
+        file.close();
     }
+
+    ~Configuration() {
+        delete[] array_walls;
+        delete[] array_fake_walls;
+    }
+
+    string str() const {
+        stringstream result;
+        result << "Configuration[\n";
+        result << "MAP_NUM_ROWS=" << map_num_rows << "\n";
+        result << "MAP_NUM_COLS=" << map_num_cols << "\n";
+        result << "MAX_NUM_MOVING_OBJECTS=" << max_num_moving_objects << "\n";
+        result << "NUM_WALLS=" << num_walls << "\n";
+        result << "ARRAY_WALLS=[";
+        for (int i = 0; i < num_walls; i++) {
+            result << "(" << array_walls[i].getRow() << "," << array_walls[i].getCol() << ")";
+            if (i < num_walls - 1) result << ";";
+        }
+        result << "]\n";
+        result << "NUM_FAKE_WALLS=" << num_fake_walls << "\n";
+        result << "ARRAY_FAKE_WALLS=[";
+        for (int i = 0; i < num_fake_walls; i++) {
+            result << "(" << array_fake_walls[i].getRow() << "," << array_fake_walls[i].getCol() << ")";
+            if (i < num_fake_walls - 1) result << ";";
+        }
+        result << "]\n";
+    result << "SHERLOCK_MOVING_RULE=" << sherlock_moving_rule << "\n";
+    result << "SHERLOCK_INIT_POS=(" << sherlock_init_pos.getRow() << "," << sherlock_init_pos.getCol() << ")\n";
+    result << "SHERLOCK_INIT_HP=" << sherlock_init_hp << "\n";
+    result << "SHERLOCK_INIT_EXP=" << sherlock_init_exp << "\n";
+    result << "WATSON_MOVING_RULE=" << watson_moving_rule << "\n";
+    result << "WATSON_INIT_POS=(" << watson_init_pos.getRow() << "," << watson_init_pos.getCol() << ")\n";
+    result << "WATSON_INIT_HP=" << watson_init_hp << "\n";
+    result << "WATSON_INIT_EXP=" << watson_init_exp << "\n";
+    result << "CRIMINAL_INIT_POS=(" << criminal_init_pos.getRow() << "," << criminal_init_pos.getCol() << ")\n";
+    result << "NUM_STEPS=" << num_steps << "\n";
+    result << "]";
+    return result.str();
+}
+
+    // Các hàm getter
+    int getMapNumRows() const { return map_num_rows; }
+    int getMapNumCols() const { return map_num_cols; }
+    int getMaxNumMovingObjects() const { return max_num_moving_objects; }
+    int getNumWalls() const { return num_walls; }
+    const Position* getArrayWalls() const { return array_walls; }
+    int getNumFakeWalls() const { return num_fake_walls; }
+    const Position* getArrayFakeWalls() const { return array_fake_walls; }
+    string getSherlockMovingRule() const { return sherlock_moving_rule; }
+    Position getSherlockInitPos() const { return sherlock_init_pos; }
+    int getSherlockInitHp() const { return sherlock_init_hp; }
+    int getSherlockInitExp() const { return sherlock_init_exp; }
+    string getWatsonMovingRule() const { return watson_moving_rule; }
+    Position getWatsonInitPos() const { return watson_init_pos; }
+    int getWatsonInitHp() const { return watson_init_hp; }
+    int getWatsonInitExp() const { return watson_init_exp; }
+    Position getCriminalInitPos() const { return criminal_init_pos; }
+    int getNumSteps() const { return num_steps; }
 };
 
 // Robot, BaseItem, BaseBag,...
@@ -593,7 +677,7 @@ public:
     {
         // Note: This is a sample code. You can change the implementation as you like.
         // TODO
-        for (int istep = 0; istep < config->num_steps; ++istep)
+        for (int istep = 0; istep < config->getNumSteps(); ++istep)
         {
             for (int i = 0; i < arr_mv_objs->size(); ++i)
             {
@@ -614,90 +698,110 @@ public:
 
     ~StudyPinkProgram();
 };
-class Robot : public MovingObject{
+class Robot : public MovingObject
+{
 protected:
     RobotType robot_type;
     long long NUM = INT_MAX;
     BaseItem *items;
     Position intPos; // inital position of Robot
 public:
-    Robot(int index, const Position& init_pos, Map*map)
-            : MovingObject(index, init_pos, map), items(items) {}
-    void setRobotType(RobotType robot_type){
+    Robot(int index, const Position &init_pos, Map *map)
+        : MovingObject(index, init_pos, map), items(items) {}
+    void setRobotType(RobotType robot_type)
+    {
         this->robot_type = robot_type;
     }
-    RobotType getRobotType(){
+    RobotType getRobotType()
+    {
         return this->robot_type;
     }
-    void setItems(BaseItem *items){
+    void setItems(BaseItem *items)
+    {
         this->items = items;
     }
-    BaseItem *getItems(){
+    BaseItem *getItems()
+    {
         return this->items;
     }
-    void move() override { }
+    void move() override {}
     string str() const override { return ""; }
-    ~Robot(){}
+    ~Robot() {}
 };
-class RobotC : public Robot {
+class RobotC : public Robot
+{
 private:
     Criminal *criminal;
 
 public:
-    RobotC(int index, const Position& init_pos, Map* map, Criminal* criminal)
-            : Robot(index, init_pos, map), criminal(criminal) {
+    RobotC(int index, const Position &init_pos, Map *map, Criminal *criminal)
+        : Robot(index, init_pos, map), criminal(criminal)
+    {
         setRobotType(RobotType::C);
     }
-    Position getNextPosition() override {
+    Position getNextPosition() override
+    {
         Position nextPos = criminal->getCurrentPosition();
         return nextPos;
     }
 
     ~RobotC() {}
 };
-class RobotS : public Robot {
+class RobotS : public Robot
+{
 private:
     Criminal *criminal;
     Sherlock *sherlock;
+
 public:
-    RobotS(int index, const Position& init_pos, Map* map, Criminal* criminal, Sherlock* sherlock)
-            : Robot(index, init_pos, map), criminal(criminal), sherlock(sherlock) {
+    RobotS(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock)
+        : Robot(index, init_pos, map), criminal(criminal), sherlock(sherlock)
+    {
         setRobotType(RobotType::S);
     }
-    Position getNextPosition() override {
+    Position getNextPosition() override
+    {
         Position nextPos = criminal->getCurrentPosition();
         return nextPos;
     }
 
     ~RobotS() {}
 };
-class RobotW : public Robot {
+class RobotW : public Robot
+{
 private:
     Criminal *criminal;
     Watson *watson;
+
 public:
-    RobotW(int index, const Position& init_pos, Map* map, Criminal* criminal, Watson* watson)
-            : Robot(index, init_pos, map), criminal(criminal), watson(watson) {
+    RobotW(int index, const Position &init_pos, Map *map, Criminal *criminal, Watson *watson)
+        : Robot(index, init_pos, map), criminal(criminal), watson(watson)
+    {
         setRobotType(RobotType::W);
     }
-    Position getNextPosition() override {
+    Position getNextPosition() override
+    {
         Position nextPos = criminal->getCurrentPosition();
         return nextPos;
     }
 
     ~RobotW() {}
 };
-class RobotSW : public Robot {
+class RobotSW : public Robot
+{
 private:
     Criminal *criminal;
     Watson *watson;
     Sherlock *sherlock;
+
 public:
-    RobotSW(int index, const Position& init_pos, Map* map, Criminal* criminal, Sherlock* sherlock, Watson* watson)
-            : Robot(index, init_pos, map), criminal(criminal), sherlock(sherlock), watson(watson) {
+    RobotSW(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson)
+        : Robot(index, init_pos, map), criminal(criminal), sherlock(sherlock), watson(watson)
+    {
         setRobotType(RobotType::SW);
     }
-    Position getNextPosition() override {
+    Position getNextPosition() override
+    {
         Position nextPos = criminal->getCurrentPosition();
         return nextPos;
     }
