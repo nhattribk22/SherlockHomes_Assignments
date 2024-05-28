@@ -64,6 +64,11 @@ enum RobotType
     SW
 };
 
+bool isCharacter(char c);
+bool isNumber(char c) ;
+int sumChar(long long &num);
+long long mainNum(long long num);
+
 class MapElement
 {
 protected:
@@ -94,7 +99,7 @@ private:
 
 public:
     FakeWall(int exp_req) : MapElement(FAKE_WALL), exp_req(exp_req){};
-    int getExpReq() const
+    int getReqExp() const
     {
         return exp_req;
     }
@@ -219,12 +224,13 @@ class MovingObject
 protected:
     int index;
     Position pos;
+    Position init;
     Map *map;
     string name;
 
 public:
     // static const Position npos;
-    MovingObject(int index, const Position pos, Map *map, const string &name = "") : index(index), pos(pos), map(map), name(name) {}
+    MovingObject(int index, const Position pos, Map *map, const string &name = "") : index(index), pos(pos), map(map), name(name), init(pos) {}
     virtual ~MovingObject() {}
     virtual Position getNextPosition() = 0;
     Position getCurrentPosition() const
@@ -233,6 +239,13 @@ public:
     }
     virtual void move() = 0;
     virtual string str() const = 0;
+    Position getInit() const
+    {
+        return init;
+    }
+    string getName(){
+        return name;
+    }
 };
 // const Position MovingObject::npos = Position::npos;
 
@@ -300,6 +313,36 @@ public:
     {
         return "Sherlock[index=" + to_string(index) + ";pos=" + pos.str() + ";moving_rule=" + moving_rule + "]";
     }
+    void setInitHp(int hp)
+    {
+        if(hp > 500){
+            this->hp = 500;
+        }
+        else if(hp < 0){
+            this->hp = 0;
+        }
+        else 
+            this->hp = hp;
+    }
+    void setInitExp(int exp)
+    {
+        if(exp > 900){
+            this->exp = 900;
+        }
+        else if(exp < 0){
+            this->exp = 0;
+        }
+        else 
+            this->exp = exp;
+    }
+    int getInitHp() const
+    {
+        return hp;
+    }
+    int getInitExp() const
+    {
+        return exp;
+    }
     ~Sherlock() {}
 };
 
@@ -362,6 +405,36 @@ public:
     string str() const override
     {
         return "Watson[index=" + to_string(index) + ";pos=" + pos.str() + ";moving_rule=" + moving_rule + "]";
+    }
+    void setInitHp(int hp)
+    {
+        if(hp > 500){
+            this->hp = 500;
+        }
+        else if(hp < 0){
+            this->hp = 0;
+        }
+        else 
+            this->hp = hp;
+    }
+    void setInitExp(int exp)
+    {
+        if(exp > 900){
+            this->exp = 900;
+        }
+        else if(exp < 0){
+            this->exp = 0;
+        }
+        else 
+            this->exp = exp;
+    }
+    int getInitHp() const
+    {
+        return hp;
+    }
+    int getInitExp() const
+    {
+        return exp;
     }
     ~Watson() {}
 };
@@ -715,6 +788,8 @@ private:
 
     Map *map;
     ArrayMovingObject *arr_mv_objs;
+    SherlockBag * sherlockBag;
+    WatsonBag * watsonBag;
 
 public:
     StudyPinkProgram(const string &config_file_path);
@@ -766,7 +841,8 @@ public:
         }
         printResult();
     }
-
+    void SherMeet(MovingObject *sher, MovingObject *object);
+    void WatMeet(MovingObject* wat, MovingObject *object);
     ~StudyPinkProgram();
 };
 
@@ -774,12 +850,31 @@ class Robot : public MovingObject
 {
 protected:
     RobotType robot_type;
-    long long NUM = INT_MAX;
+    long long NUM = INT_MIN;
     BaseItem *items;
 
 public:
+    string typeRobot[4] = {"C", "S", "W", "SW"};
     Robot(int index, const Position &int_pos, Map *map, string name)
-        : MovingObject(index, int_pos, map, name), items(items) {}
+        : MovingObject(index, int_pos, map, name){
+            Position init = this->getInit();
+        this->NUM = mainNum(init.getCol()*init.getRow());
+        if (this->NUM <= 1){
+            this->items = new MagicBook();
+        } 
+        else if (this->NUM <= 3) {
+            this->items = new EnergyDrink();
+        }
+        else if (this->NUM <= 5) {
+            this->items = new FirstAid();
+        }
+        else if (this->NUM <= 7) {
+            this->items = new ExcemptionCard();
+        }
+        else {
+            this->items = new PassingCard();
+        }
+        }
 
     void setRobotType(RobotType robot_type)
     {
@@ -818,9 +913,8 @@ public:
         return abs(pos1.getRow() - pos2.getRow()) + abs(pos1.getCol() - pos2.getCol());
     }
 
-    ~Robot()
-    {
-        delete items;
+    ~Robot(){
+        // delete items;
     };
 };
 class RobotC : public Robot
@@ -1027,117 +1121,193 @@ public:
 };
 class PassingCard : public BaseItem
 {
+private:
+    string challenge = "";
 public:
     bool canUse(Character *obj, Robot *robot) override;
     void use(Character *obj, Robot *robot) override;
     ItemType getType() const override;
 };
 // Túi đồ
-class Node
-{
+class ItemNode{
 public:
-    BaseItem *item;
-    Node *next;
-    Node(BaseItem *item, Node *next) : item(item), next(next) {}
+    BaseItem* item;
+    ItemNode * next;
+    ItemNode * prev;
+    ItemNode(BaseItem* item, ItemNode* next, ItemNode* prev) : item(item), next(next), prev(prev){}
 };
 class BaseBag
 {
 public:
     Character *obj;
+    int size;
+    int capacity;
     virtual bool insert(BaseItem *item) = 0;
     virtual BaseItem *get() = 0;
     virtual BaseItem *get(ItemType type) = 0;
     virtual string str() const = 0;
+    int getCount()
+    {
+        return this->size;
+    }
+    bool isFull()
+    {
+        return this->size == this->capacity;
+    }
 };
 class SherlockBag : public BaseBag
 {
 private:
-    int size;
-    int capacity;
-    Node *head = nullptr;
+    ItemNode *head;
+    ItemNode *tail;
 public:
-    SherlockBag(Sherlock *shrk) : size(0), capacity(13)
+    SherlockBag(Sherlock *shrk)
     {
         this->obj = (Character *)shrk;
+        this->size = 0;
+        this->capacity = 13;
+        this->head = nullptr;
     }
-    BaseItem* get() override;
-    BaseItem* get(ItemType type) override;
-    string str() const override {
-        string arr[5] = { "MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
+    BaseItem *get() override;
+    string str() const override
+    {
+        string arr[5] = {"MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
         string result = "Bag[count=" + to_string(this->size) + ";";
-        Node *node = this->head;
-        if(node == nullptr) return result + "]";
-        while(node->next != nullptr){
+        ItemNode *node = this->head;
+        if (node == nullptr)
+            return result + "]";
+        while (node->next != nullptr)
+        {
             result += arr[node->item->getType()] + ", ";
         }
         result += arr[node->item->getType()] + "]";
     }
-    Node* getItem(ItemType type){
-        Node* curr = this->head;
-        while(curr != nullptr){
-            if(curr->item->getType() == type){
-                return curr;
+    BaseItem *get(ItemType type) override
+    {
+        ItemNode *curr = this->head;
+        while (curr != nullptr)
+        {
+            if (curr->item->getType() == type)
+            {
+                return curr->item;
             }
         }
         return nullptr;
     }
-    bool insert(BaseItem* item) override{
-        Node* newNode = new Node(item, nullptr);
-        if(this->size == this->capacity){
-            return false;
+    bool insert(BaseItem *item) override
+    {
+        ItemNode *curr = new ItemNode(item, nullptr, nullptr);
+        if (size == 0)
+        {
+            head = curr;
+            tail = curr;
+            size++;
+            return true;
         }
-        else{
-            newNode->next = this->head;
-            this->head = newNode;
+        else if (size < capacity)
+        {
+            head->prev = curr;
+            curr->next = head;
+            head = curr;
+            size++;
+            return true;
         }
-        this->size++;
-        return true;
+        return false;
     }
-
+    void dequeue() {
+        if (this->head == nullptr) {
+            return;
+        }
+        ItemNode * node = this->head;
+        if (this->size == 1){
+            this->head = nullptr;
+        } else {
+            this->head = this->head->next;
+        }
+        this->size--;
+        delete node;
+    }
+    // void deleteAllPassingCard(){
+    //     BaseItem* it = this->head;
+    //     while (it!= nullptr) {
+    //         if (it->getType() == PASSING_CARD) {
+    //             bring_to_head(it);
+    //             this->dequeue();
+    //         } else {
+    //             it = it->next;
+    //         }
+    //     }
+    // }
+    int getPassingCard(){
+        int result = 0;
+        ItemNode* node = this->head;
+        while(node) {
+            if (node->item->getType() == ItemType::PASSING_CARD) {
+                result++;
+            }
+            node = node->next;
+        }
+        return result;
+    }
 };
 class WatsonBag : public BaseBag
 {
 private:
-    int size;
-    int capacity;
-    Node *head = nullptr;
+    ItemNode *head;
+    ItemNode* tail;
 public:
-    WatsonBag(Watson *wast) : size(0), capacity(15)
+    WatsonBag(Watson *wast)
     {
-        this->obj = (Character *) wast;
+        this->obj = (Character *)wast;
+        this->size = 0;
+        this->capacity = 15;
+        this->head = nullptr;
     }
-    BaseItem* get() override;
-    BaseItem* get(ItemType type) override;
-    string str() const override {
-        string arr[5] = { "MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
+    BaseItem *get() override;
+    string str() const override
+    {
+        string arr[5] = {"MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
         string result = "Bag[count=" + to_string(this->size) + ";";
-        Node *node = this->head;
-        if(node == nullptr) return result + "]";
-        while(node->next != nullptr){
+        ItemNode *node = this->head;
+        if (node == nullptr)
+            return result + "]";
+        while (node->next != nullptr)
+        {
             result += arr[node->item->getType()] + ", ";
         }
         result += arr[node->item->getType()] + "]";
     }
-    Node* getItem(ItemType type){
-        Node* curr = this->head;
-        while(curr != nullptr){
-            if(curr->item->getType() == type){
-                return curr;
+    BaseItem *get(ItemType type) override
+    {
+        ItemNode *curr = this->head;
+        while (curr != nullptr)
+        {
+            if (curr->item->getType() == type)
+            {
+                return curr->item;
             }
         }
         return nullptr;
     }
-    bool insert(BaseItem* item) override{
-        Node* newNode = new Node(item, nullptr);
-        if(this->size == this->capacity){
-            return false;
+    bool insert(BaseItem *item) override
+    {
+        ItemNode *curr = new ItemNode(item, nullptr, nullptr);
+        if (size == 0)
+        {
+            head = curr;
+            tail = curr;
+            size++;
+            return true;
         }
-        else{
-            newNode->next = this->head;
-            this->head = newNode;
+        else if (size < capacity)
+        {
+            head->prev = curr;
+            curr->next = head;
+            head = curr;
+            size++;
+            return true;
         }
-        this->size++;
-        return true;
+        return false;
     }
 };
 ////////////////////////////////////////////////
