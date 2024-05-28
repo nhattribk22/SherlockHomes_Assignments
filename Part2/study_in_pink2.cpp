@@ -7,151 +7,151 @@
 ////////////////////////////////////////////////////////////////////////
 
 const Position Position::npos = Position(-1, -1);
-bool MagicBook::canUse(Character *obj, Robot*robot) {
-        if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
-            return false;
-        }
-        // if they don't meet each other
-        if (obj->getName() == "Watson"){
-            Watson* watson = (Watson*)obj;
-            if (watson->getInitExp() <= 350) return true;
-        }
-        else if (obj->getName() == "Sherlock") {
-            Sherlock* sherlock = (Sherlock*)obj;
-            if (sherlock->getInitExp() <= 350) return true;
-        }
-    return false;
-    }
+// bool MagicBook::canUse(Character *obj, Robot*robot) {
+//         if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
+//             return false;
+//         }
+//         // if they don't meet each other
+//         if (obj->getName() == "Watson"){
+//             Watson* watson = (Watson*)obj;
+//             if (watson->getInitExp() <= 350) return true;
+//         }
+//         else if (obj->getName() == "Sherlock") {
+//             Sherlock* sherlock = (Sherlock*)obj;
+//             if (sherlock->getInitExp() <= 350) return true;
+//         }
+//     return false;
+//     }
 
-void MagicBook::use(Character *obj, Robot* robot)  {
-    if (obj->getName() == "Watson"){
-        Watson* watson = (Watson*)obj;
-        watson->setInitExp(ceil(watson->getInitExp()*1.25));
-    }
-    else if (obj->getName() == "Sherlock") {
-        Sherlock* sherlock = (Sherlock*)obj;
-        sherlock->setInitExp(ceil(sherlock->getInitExp()*1.25));
-    }
-}
-
-
-bool EnergyDrink::canUse(Character *obj, Robot* robot) {
-    if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
-        return false;
-    }
-    // if they don't meet each other
-    if (obj->getName() == "Watson"){
-        Watson* watson = (Watson*)obj;
-        if (watson->getInitHp() <= 100) return true;
-    }
-    else if (obj->getName() == "Sherlock") {
-        Sherlock* sherlock = (Sherlock*)obj;
-        if (sherlock->getInitHp() <= 100) return true;
-    }
-    return false;
-}
-
-void EnergyDrink::use(Character *obj, Robot* robot)  {
-    if (obj->getName() == "Watson"){
-        Watson* watson = (Watson*)obj;
-        watson->setInitHp(ceil(watson->getInitHp()*1.2));
-    }
-    else if (obj->getName() == "Sherlock") {
-        Sherlock* sherlock = (Sherlock*)obj;
-        sherlock->setInitHp(ceil(sherlock->getInitHp()*1.2));
-    }
-}
-bool FirstAid::canUse(Character *obj, Robot *robot) {
-    // if they don't meet each other
-    if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
-        return false;
-    }
-    if (obj->getName() == "Watson"){
-        Watson* watson = (Watson*)obj;
-        if (watson->getInitHp() <= 100 || watson->getInitExp() <= 350) return true;
-    }
-    else if (obj->getName() == "Sherlock") {
-        Sherlock* sherlock = (Sherlock*)obj;
-        if (sherlock->getInitHp() <= 100 || sherlock->getInitExp() <= 350) return true;
-    }
-    return false;
-}
+// void MagicBook::use(Character *obj, Robot* robot)  {
+//     if (obj->getName() == "Watson"){
+//         Watson* watson = (Watson*)obj;
+//         watson->setInitExp(ceil(watson->getInitExp()*1.25));
+//     }
+//     else if (obj->getName() == "Sherlock") {
+//         Sherlock* sherlock = (Sherlock*)obj;
+//         sherlock->setInitExp(ceil(sherlock->getInitExp()*1.25));
+//     }
+// }
 
 
-void FirstAid::use(Character* obj, Robot* robot) {
-    if (obj->getName() == "Watson"){
-        Watson* watson = (Watson*)obj;
-        watson->setInitHp(ceil(watson->getInitHp()*1.5));
-    }
-    else if (obj->getName() == "Sherlock") {
-        Sherlock* sherlock = (Sherlock*)obj;
-        sherlock->setInitHp(ceil(sherlock->getInitHp()*1.5));
-    }
-}
-bool ExcemptionCard::canUse(Character *obj, Robot* robot) {
-    // if they don't meet each other
-    if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
-        return false;
-    }
-    else if (obj->getName() == "Sherlock") {
-        Sherlock* sherlock = (Sherlock*)obj;
-        if (sherlock->getInitHp() %2 == 1) return true;
-    }
-    return false;
-}
+// bool EnergyDrink::canUse(Character *obj, Robot* robot) {
+//     if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
+//         return false;
+//     }
+//     // if they don't meet each other
+//     if (obj->getName() == "Watson"){
+//         Watson* watson = (Watson*)obj;
+//         if (watson->getInitHp() <= 100) return true;
+//     }
+//     else if (obj->getName() == "Sherlock") {
+//         Sherlock* sherlock = (Sherlock*)obj;
+//         if (sherlock->getInitHp() <= 100) return true;
+//     }
+//     return false;
+// }
 
-void ExcemptionCard::use(Character *obj, Robot* robot) {
-    // TODO:
-}
-bool PassingCard::canUse(Character *obj, Robot* robot) {
-    // if they don't meet each other
-    if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
-        return false;
-    }
-    else if (obj->getName() == "Watson") {
-        Watson* watson = (Watson*)obj;
-        if (watson->getInitHp() %2 == 0) return true;
-    }
-    return false;
-}
+// void EnergyDrink::use(Character *obj, Robot* robot)  {
+//     if (obj->getName() == "Watson"){
+//         Watson* watson = (Watson*)obj;
+//         watson->setInitHp(ceil(watson->getInitHp()*1.2));
+//     }
+//     else if (obj->getName() == "Sherlock") {
+//         Sherlock* sherlock = (Sherlock*)obj;
+//         sherlock->setInitHp(ceil(sherlock->getInitHp()*1.2));
+//     }
+// }
+// bool FirstAid::canUse(Character *obj, Robot *robot) {
+//     // if they don't meet each other
+//     if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
+//         return false;
+//     }
+//     if (obj->getName() == "Watson"){
+//         Watson* watson = (Watson*)obj;
+//         if (watson->getInitHp() <= 100 || watson->getInitExp() <= 350) return true;
+//     }
+//     else if (obj->getName() == "Sherlock") {
+//         Sherlock* sherlock = (Sherlock*)obj;
+//         if (sherlock->getInitHp() <= 100 || sherlock->getInitExp() <= 350) return true;
+//     }
+//     return false;
+// }
 
 
-void PassingCard::use(Character *obj, Robot* robot) {
-    // TODO:
-    Position init = robot->getInit();
-    int t = (init.getRow()*11 + init.getCol())%4;
-    if (t == 0) this->challenge = "RobotS";
-    if (t == 1) this->challenge = "RobotC";
-    if (t == 2) this->challenge = "RobotSW";
-    if (t == 3) this->challenge = "all";
-    cout << robot->getName() << " " << this->challenge << endl;
-    if (robot->getName() != this->challenge && this->challenge != "all") {
-        if (obj->getName() == "Watson") {
-            Watson* watson = (Watson*)obj;
-            watson->setInitExp(watson->getInitExp() - 50);
-            cout << "Watson,  exp: " << watson->getInitExp() << endl;
-        }
-    }
-}
-ItemType PassingCard::getType() const {
-    return PASSING_CARD;
-}
+// void FirstAid::use(Character* obj, Robot* robot) {
+//     if (obj->getName() == "Watson"){
+//         Watson* watson = (Watson*)obj;
+//         watson->setInitHp(ceil(watson->getInitHp()*1.5));
+//     }
+//     else if (obj->getName() == "Sherlock") {
+//         Sherlock* sherlock = (Sherlock*)obj;
+//         sherlock->setInitHp(ceil(sherlock->getInitHp()*1.5));
+//     }
+// }
+// bool ExcemptionCard::canUse(Character *obj, Robot* robot) {
+//     // if they don't meet each other
+//     if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
+//         return false;
+//     }
+//     else if (obj->getName() == "Sherlock") {
+//         Sherlock* sherlock = (Sherlock*)obj;
+//         if (sherlock->getInitHp() %2 == 1) return true;
+//     }
+//     return false;
+// }
 
-ItemType ExcemptionCard::getType() const {
-    return EXCEMPTION_CARD;
-}
+// void ExcemptionCard::use(Character *obj, Robot* robot) {
+//     // TODO:
+// }
+// bool PassingCard::canUse(Character *obj, Robot* robot) {
+//     // if they don't meet each other
+//     if (!obj->getCurrentPosition().isEqual(robot->getCurrentPosition())) {
+//         return false;
+//     }
+//     else if (obj->getName() == "Watson") {
+//         Watson* watson = (Watson*)obj;
+//         if (watson->getInitHp() %2 == 0) return true;
+//     }
+//     return false;
+// }
 
-ItemType MagicBook::getType() const {
-    return MAGIC_BOOK;
-}
 
-ItemType EnergyDrink::getType() const {
-    return ENERGY_DRINK;
-}
+// void PassingCard::use(Character *obj, Robot* robot) {
+//     // TODO:
+//     Position init = robot->getInit();
+//     int t = (init.getRow()*11 + init.getCol())%4;
+//     if (t == 0) this->challenge = "RobotS";
+//     if (t == 1) this->challenge = "RobotC";
+//     if (t == 2) this->challenge = "RobotSW";
+//     if (t == 3) this->challenge = "all";
+//     cout << robot->getName() << " " << this->challenge << endl;
+//     if (robot->getName() != this->challenge && this->challenge != "all") {
+//         if (obj->getName() == "Watson") {
+//             Watson* watson = (Watson*)obj;
+//             watson->setInitExp(watson->getInitExp() - 50);
+//             cout << "Watson,  exp: " << watson->getInitExp() << endl;
+//         }
+//     }
+// }
+// ItemType PassingCard::getType() const {
+//     return PASSING_CARD;
+// }
 
-ItemType FirstAid::getType() const {
-    return FIRST_AID;
-}
+// ItemType ExcemptionCard::getType() const {
+//     return EXCEMPTION_CARD;
+// }
+
+// ItemType MagicBook::getType() const {
+//     return MAGIC_BOOK;
+// }
+
+// ItemType EnergyDrink::getType() const {
+//     return ENERGY_DRINK;
+// }
+
+// ItemType FirstAid::getType() const {
+//     return FIRST_AID;
+// }
 // void StudyPinkProgram:: SherMeet(MovingObject *sher, MovingObject *object) {
 //     Sherlock *sherlock = (Sherlock *)sher;
 //     if (sherlock->getInitHp() == 0 || sherlock->getInitExp() == 0) return;

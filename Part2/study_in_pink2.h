@@ -274,6 +274,81 @@ public:
     // int temp_moving = 0;
 };
 
+// class BaseItem
+// {
+// public:
+//     virtual bool canUse(Character *obj, Robot *robot) = 0;
+//     virtual void use(Character *obj, Robot *robot) = 0;
+//     virtual ItemType getType() const = 0;
+// };
+// class MagicBook : public BaseItem
+// {
+// public:
+//     bool canUse(Character *obj, Robot *robot) override;
+//     void use(Character *obj, Robot *robot) override;
+//     ItemType getType() const override;
+// };
+// class EnergyDrink : public BaseItem
+// {
+// public:
+//     bool canUse(Character *obj, Robot *robot) override;
+//     void use(Character *obj, Robot *robot) override;
+//     ItemType getType() const override;
+// };
+// class FirstAid : public BaseItem
+// {
+// public:
+//     bool canUse(Character *obj, Robot *robot) override;
+//     void use(Character *obj, Robot *robot) override;
+//     ItemType getType() const override;
+// };
+// class ExcemptionCard : public BaseItem
+// {
+// public:
+//     bool canUse(Character *obj, Robot *robot) override;
+//     void use(Character *obj, Robot *robot) override;
+//     ItemType getType() const override;
+// };
+// class PassingCard : public BaseItem
+// {
+// private:
+//     string challenge = "";
+
+// public:
+//     PassingCard(string input) : challenge(input){};
+//     bool canUse(Character *obj, Robot *robot) override;
+//     void use(Character *obj, Robot *robot) override;
+//     ItemType getType() const override;
+// };
+// // Túi đồ
+// class ItemNode
+// {
+// public:
+//     BaseItem *item;
+//     ItemNode *next;
+//     ItemNode *prev;
+//     ItemNode(BaseItem *item, ItemNode *next, ItemNode *prev) : item(item), next(next), prev(prev) {}
+// };
+// class BaseBag
+// {
+// public:
+//     Character *obj;
+//     int size;
+//     int capacity;
+//     virtual bool insert(BaseItem *item) = 0;
+//     virtual BaseItem *get() = 0;
+//     virtual BaseItem *get(ItemType type) = 0;
+//     virtual string str() const = 0;
+//     int getCount()
+//     {
+//         return this->size;
+//     }
+//     bool isFull()
+//     {
+//         return this->size == this->capacity;
+//     }
+// };
+
 class Sherlock : public Character /* TODO */
 {
     friend class TestStudyInPink;
@@ -468,7 +543,7 @@ public:
     }
     ~Watson() {}
 };
-class Criminal : public MovingObject
+class Criminal : public Character
 {
     friend class TestStudyInPink;
 
@@ -478,7 +553,7 @@ private:
 
 public:
     Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson)
-        : MovingObject(index, init_pos, map, "Criminal"), sherlock(sherlock), watson(watson){};
+        : Character(index, init_pos, map, "Criminal"), sherlock(sherlock), watson(watson){};
     int MahattanDistance(Position pos1, Position pos2)
     {
         return abs(pos1.getRow() - pos2.getRow()) + abs(pos1.getCol() - pos2.getCol());
@@ -884,488 +959,425 @@ public:
     ~StudyPinkProgram();
 };
 
-class Robot : public MovingObject
-{
-protected:
-    RobotType robot_type;
-    long long NUM = INT_MIN;
-    BaseItem *items;
+// class Robot : public MovingObject
+// {
+// protected:
+//     RobotType robot_type;
+//     long long NUM = INT_MIN;
+//     BaseItem *item;
 
-public:
-    string typeRobot[4] = {"C", "S", "W", "SW"};
-    Robot(int index, const Position &int_pos, Map *map, string name)
-        : MovingObject(index, int_pos, map, name)
-    {
-        Position init = this->getInit();
-        this->NUM = mainNum(init.getCol() * init.getRow());
-        if (this->NUM <= 1)
-        {
-            this->items = new MagicBook();
-        }
-        else if (this->NUM <= 3)
-        {
-            this->items = new EnergyDrink();
-        }
-        else if (this->NUM <= 5)
-        {
-            this->items = new FirstAid();
-        }
-        else if (this->NUM <= 7)
-        {
-            this->items = new ExcemptionCard();
-        }
-        else
-        {
-            this->items = new PassingCard();
-        }
-    }
+// public:
+//     string typeRobot[4] = {"C", "S", "W", "SW"};
+//     Robot(int index, const Position &int_pos, Map *map, string name)
+//         : MovingObject(index, int_pos, map, name)
+//     {
+//         Position init = this->getInit();
+//         this->NUM = mainNum(init.getCol() * init.getRow());
+//         if (this->NUM <= 1)
+//         {
+//             this->item = new MagicBook();
+//         }
+//         else if (this->NUM <= 3)
+//         {
+//             this->item = new EnergyDrink();
+//         }
+//         else if (this->NUM <= 5)
+//         {
+//             this->item = new FirstAid();
+//         }
+//         else if (this->NUM <= 7)
+//         {
+//             this->item = new ExcemptionCard();
+//         }
+//         else if (this->NUM <=9 )
+//         {
+//             int t = (init.getCol()*11 + init.getRow())%4;
+//             if(t==0){
+//                 this->item = new PassingCard("RobotS");
+//             }else if(t==0){
+//                 this->item = new PassingCard("RobotC");
+//             }else if(t==0){
+//                 this->item = new PassingCard("RobotSW");
+//             }else{
+//                 this->item = new PassingCard("all");
+//             }
+//         }
+//     }
 
-    void setRobotType(RobotType robot_type)
-    {
-        this->robot_type = robot_type;
-    }
+//     void setRobotType(RobotType robot_type)
+//     {
+//         this->robot_type = robot_type;
+//     }
 
-    RobotType getRobotType()
-    {
-        return this->robot_type;
-    }
+//     RobotType getRobotType()
+//     {
+//         return this->robot_type;
+//     }
 
-    void setItems(BaseItem *items)
-    {
-        this->items = items;
-    }
+//     void setItems(BaseItem *items)
+//     {
+//         this->item = items;
+//     }
 
-    BaseItem *getItems()
-    {
-        return this->items;
-    }
+//     BaseItem *getItems()
+//     {
+//         return this->item;
+//     }
 
-    void move() override
-    {
-        if (getNextPosition().isEqual(Position::npos))
-        {
-            return;
-        }
-        else
-        {
-            pos = getNextPosition();
-        }
-    };
+//     void move() override
+//     {
+//         if (getNextPosition().isEqual(Position::npos))
+//         {
+//             return;
+//         }
+//         else
+//         {
+//             pos = getNextPosition();
+//         }
+//     };
 
-    int MahattanDistance(Position pos1, Position pos2) const
-    {
-        return abs(pos1.getRow() - pos2.getRow()) + abs(pos1.getCol() - pos2.getCol());
-    }
+//     int MahattanDistance(Position pos1, Position pos2) const
+//     {
+//         return abs(pos1.getRow() - pos2.getRow()) + abs(pos1.getCol() - pos2.getCol());
+//     }
 
-    ~Robot(){
-        // delete items;
-    };
-};
-class RobotC : public Robot
-{
-private:
-    Criminal *criminal;
+//     ~Robot(){
+//         // delete items;
+//     };
+// };
+// class RobotC : public Robot
+// {
+// private:
+//     Criminal *criminal;
 
-public:
-    RobotC(int index, const Position &init_pos, Map *map, Criminal *criminal)
-        : Robot(index, init_pos, map, "RobotC"), criminal(criminal)
-    {
-        robot_type = C;
-    };
-    Position getNextPosition() override
-    {
-        return criminal->getCurrentPosition();
-    };
-    string str() const
-    {
-        return "Robot[pos=" + pos.str() + ";type=" + "C" + ";dist=]";
-    };
-    int getDistance(Sherlock *sherlock)
-    {
-        return MahattanDistance(this->pos, sherlock->getCurrentPosition());
-    }
-    int getDistance(Watson *watson)
-    {
-        return MahattanDistance(this->pos, watson->getCurrentPosition());
-    }
-};
-class RobotS : public Robot
-{
-private:
-    Criminal *criminal;
-    Sherlock *sherlock;
+// public:
+//     RobotC(int index, const Position &init_pos, Map *map, Criminal *criminal)
+//         : Robot(index, init_pos, map, "RobotC"), criminal(criminal)
+//     {
+//         robot_type = C;
+//     };
+//     Position getNextPosition() override
+//     {
+//         return criminal->getCurrentPosition();
+//     };
+//     string str() const
+//     {
+//         return "Robot[pos=" + pos.str() + ";type=" + "C" + ";dist=]";
+//     };
+//     int getDistance(Sherlock *sherlock)
+//     {
+//         return MahattanDistance(this->pos, sherlock->getCurrentPosition());
+//     }
+//     int getDistance(Watson *watson)
+//     {
+//         return MahattanDistance(this->pos, watson->getCurrentPosition());
+//     }
+// };
+// class RobotS : public Robot
+// {
+// private:
+//     Criminal *criminal;
+//     Sherlock *sherlock;
 
-public:
-    RobotS(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock) : Robot(index, init_pos, map, "RobotS"), criminal(criminal), sherlock(sherlock)
-    {
-        robot_type = S;
-    };
-    Position getNextPosition() override
-    {
-        Position *validPositions = new Position[4];
-        validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
-        validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
-        validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
-        validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
+// public:
+//     RobotS(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock) : Robot(index, init_pos, map, "RobotS"), criminal(criminal), sherlock(sherlock)
+//     {
+//         robot_type = S;
+//     };
+//     Position getNextPosition() override
+//     {
+//         Position *validPositions = new Position[4];
+//         validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
+//         validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
+//         validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
+//         validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
 
-        // Tìm vị trí hợp lệ
-        int minDistance = getDistance();
-        Position nextPos = Position::npos;
-        for (int i = 0; i < 4; i++)
-        {
-            if (map->isValid(validPositions[i], this))
-            {
-                int distanceToSherlock = MahattanDistance(validPositions[i], sherlock->getCurrentPosition());
-                if (distanceToSherlock < minDistance)
-                {
-                    minDistance = distanceToSherlock;
-                    nextPos = validPositions[i];
-                }
-            }
-        }
-        return nextPos;
-    };
-    string str() const override
-    {
-        return "Robot[pos=" + pos.str() + ";type=" + "S" + ";dist=" + to_string(getDistance()) + "]";
-    };
-    int getDistance() const
-    {
-        return MahattanDistance(this->pos, sherlock->getCurrentPosition());
-    }
-};
-class RobotW : public Robot
-{
-private:
-    Criminal *criminal;
-    Watson *watson;
+//         // Tìm vị trí hợp lệ
+//         int minDistance = getDistance();
+//         Position nextPos = Position::npos;
+//         for (int i = 0; i < 4; i++)
+//         {
+//             if (map->isValid(validPositions[i], this))
+//             {
+//                 int distanceToSherlock = MahattanDistance(validPositions[i], sherlock->getCurrentPosition());
+//                 if (distanceToSherlock < minDistance)
+//                 {
+//                     minDistance = distanceToSherlock;
+//                     nextPos = validPositions[i];
+//                 }
+//             }
+//         }
+//         return nextPos;
+//     };
+//     string str() const override
+//     {
+//         return "Robot[pos=" + pos.str() + ";type=" + "S" + ";dist=" + to_string(getDistance()) + "]";
+//     };
+//     int getDistance() const
+//     {
+//         return MahattanDistance(this->pos, sherlock->getCurrentPosition());
+//     }
+// };
+// class RobotW : public Robot
+// {
+// private:
+//     Criminal *criminal;
+//     Watson *watson;
 
-public:
-    RobotW(int index, const Position &init_pos, Map *map, Criminal *criminal, Watson *watson) : Robot(index, init_pos, map, "RobotW"), criminal(criminal), watson(watson)
-    {
-        robot_type = W;
-    };
-    Position getNextPosition() override
-    {
-        Position *validPositions = new Position[4];
-        validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
-        validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
-        validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
-        validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
+// public:
+//     RobotW(int index, const Position &init_pos, Map *map, Criminal *criminal, Watson *watson) : Robot(index, init_pos, map, "RobotW"), criminal(criminal), watson(watson)
+//     {
+//         robot_type = W;
+//     };
+//     Position getNextPosition() override
+//     {
+//         Position *validPositions = new Position[4];
+//         validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
+//         validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
+//         validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
+//         validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
 
-        // Tìm vị trí hợp lệ
-        int minDistance = getDistance();
-        Position nextPos = Position::npos;
-        for (int i = 0; i < 4; i++)
-        {
-            if (map->isValid(validPositions[i], this))
-            {
-                int distanceToWatson = MahattanDistance(validPositions[i], watson->getCurrentPosition());
-                if (distanceToWatson < minDistance)
-                {
-                    minDistance = distanceToWatson;
-                    nextPos = validPositions[i];
-                }
-            }
-        }
-        return nextPos;
-    };
-    string str() const
-    {
-        return "Robot[pos=" + pos.str() + ";type=" + "W" + ";dist=" + to_string(getDistance()) + "]";
-    };
-    int getDistance() const
-    {
-        return MahattanDistance(this->pos, watson->getCurrentPosition());
-    }
-};
-class RobotSW : public Robot
-{
-private:
-    Criminal *criminal;
-    Sherlock *sherlock;
-    Watson *watson;
+//         // Tìm vị trí hợp lệ
+//         int minDistance = getDistance();
+//         Position nextPos = Position::npos;
+//         for (int i = 0; i < 4; i++)
+//         {
+//             if (map->isValid(validPositions[i], this))
+//             {
+//                 int distanceToWatson = MahattanDistance(validPositions[i], watson->getCurrentPosition());
+//                 if (distanceToWatson < minDistance)
+//                 {
+//                     minDistance = distanceToWatson;
+//                     nextPos = validPositions[i];
+//                 }
+//             }
+//         }
+//         return nextPos;
+//     };
+//     string str() const
+//     {
+//         return "Robot[pos=" + pos.str() + ";type=" + "W" + ";dist=" + to_string(getDistance()) + "]";
+//     };
+//     int getDistance() const
+//     {
+//         return MahattanDistance(this->pos, watson->getCurrentPosition());
+//     }
+// };
+// class RobotSW : public Robot
+// {
+// private:
+//     Criminal *criminal;
+//     Sherlock *sherlock;
+//     Watson *watson;
 
-public:
-    RobotSW(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson) : Robot(index, init_pos, map, "RobotSW"), criminal(criminal), sherlock(sherlock), watson(watson)
-    {
-        robot_type = SW;
-    };
-    Position getNextPosition() override
-    {
-        Position *validPositions = new Position[4];
-        validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
-        validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
-        validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
-        validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
+// public:
+//     RobotSW(int index, const Position &init_pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson) : Robot(index, init_pos, map, "RobotSW"), criminal(criminal), sherlock(sherlock), watson(watson)
+//     {
+//         robot_type = SW;
+//     };
+//     Position getNextPosition() override
+//     {
+//         Position *validPositions = new Position[4];
+//         validPositions[0] = Position(pos.getRow() - 1, pos.getCol()); // UP
+//         validPositions[1] = Position(pos.getRow(), pos.getCol() + 1); // RIGHT
+//         validPositions[2] = Position(pos.getRow() + 1, pos.getCol()); // DOWN
+//         validPositions[3] = Position(pos.getRow(), pos.getCol() - 1); // LEFT
 
-        // Tìm vị trí hợp lệ
-        int minDistance = getDistance();
-        Position nextPos = Position::npos;
-        for (int i = 0; i < 4; i++)
-        {
-            if (map->isValid(validPositions[i], this))
-            {
-                int distanceToSherlock = MahattanDistance(validPositions[i], sherlock->getCurrentPosition());
-                int distanceToWatson = MahattanDistance(validPositions[i], watson->getCurrentPosition());
-                int totalDistance = distanceToSherlock + distanceToWatson;
-                if (totalDistance < minDistance)
-                {
-                    minDistance = distanceToWatson;
-                    nextPos = validPositions[i];
-                }
-            }
-        }
-        return nextPos;
-    };
-    string str() const
-    {
-        return "Robot[pos=" + pos.str() + ";type=" + "SW" + ";dist=" + to_string(getDistance()) + "]";
-    };
-    int getDistance() const
-    {
-        return MahattanDistance(this->pos, sherlock->getCurrentPosition()) + MahattanDistance(this->pos, watson->getCurrentPosition());
-    }
-};
+//         // Tìm vị trí hợp lệ
+//         int minDistance = getDistance();
+//         Position nextPos = Position::npos;
+//         for (int i = 0; i < 4; i++)
+//         {
+//             if (map->isValid(validPositions[i], this))
+//             {
+//                 int distanceToSherlock = MahattanDistance(validPositions[i], sherlock->getCurrentPosition());
+//                 int distanceToWatson = MahattanDistance(validPositions[i], watson->getCurrentPosition());
+//                 int totalDistance = distanceToSherlock + distanceToWatson;
+//                 if (totalDistance < minDistance)
+//                 {
+//                     minDistance = distanceToWatson;
+//                     nextPos = validPositions[i];
+//                 }
+//             }
+//         }
+//         return nextPos;
+//     };
+//     string str() const
+//     {
+//         return "Robot[pos=" + pos.str() + ";type=" + "SW" + ";dist=" + to_string(getDistance()) + "]";
+//     };
+//     int getDistance() const
+//     {
+//         return MahattanDistance(this->pos, sherlock->getCurrentPosition()) + MahattanDistance(this->pos, watson->getCurrentPosition());
+//     }
+// };
 
-class BaseItem
-{
-public:
-    virtual bool canUse(Character *obj, Robot *robot) = 0;
-    virtual void use(Character *obj, Robot *robot) = 0;
-    virtual ItemType getType() const = 0;
-};
-class MagicBook : public BaseItem
-{
-public:
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
-    ItemType getType() const override;
-};
-class EnergyDrink : public BaseItem
-{
-public:
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
-    ItemType getType() const override;
-};
-class FirstAid : public BaseItem
-{
-public:
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
-    ItemType getType() const override;
-};
-class ExcemptionCard : public BaseItem
-{
-public:
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
-    ItemType getType() const override;
-};
-class PassingCard : public BaseItem
-{
-private:
-    string challenge = "";
 
-public:
-        bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
-    ItemType getType() const override;
-};
-// Túi đồ
-class ItemNode
-{
-public:
-    BaseItem *item;
-    ItemNode *next;
-    ItemNode *prev;
-    ItemNode(BaseItem *item, ItemNode *next, ItemNode *prev) : item(item), next(next), prev(prev) {}
-};
-class BaseBag
-{
-public:
-    Character *obj;
-    int size;
-    int capacity;
-    virtual bool insert(BaseItem *item) = 0;
-    virtual BaseItem *get() = 0;
-    virtual BaseItem *get(ItemType type) = 0;
-    virtual string str() const = 0;
-    int getCount()
-    {
-        return this->size;
-    }
-    bool isFull()
-    {
-        return this->size == this->capacity;
-    }
-};
-class SherlockBag : public BaseBag
-{
-private:
-    ItemNode *head;
-    ItemNode *tail;
+// class SherlockBag : public BaseBag
+// {
+// private:
+//     ItemNode *head;
+//     ItemNode *tail;
 
-public:
-    SherlockBag(Sherlock *shrk)
-    {
-        this->obj = (Character *)shrk;
-        this->size = 0;
-        this->capacity = 13;
-        this->head = nullptr;
-    }
-    BaseItem *get() override;
-    string str() const override
-    {
-        string arr[5] = {"MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
-        string result = "Bag[count=" + to_string(this->size) + ";";
-        ItemNode *node = this->head;
-        if (node == nullptr)
-            return result + "]";
-        while (node->next != nullptr)
-        {
-            result += arr[node->item->getType()] + ", ";
-        }
-        result += arr[node->item->getType()] + "]";
-    }
-    BaseItem *get(ItemType type) override
-    {
-        ItemNode *curr = this->head;
-        while (curr != nullptr)
-        {
-            if (curr->item->getType() == type)
-            {
-                return curr->item;
-            }
-        }
-        return nullptr;
-    }
-    bool insert(BaseItem *item) override
-    {
-        ItemNode *curr = new ItemNode(item, nullptr, nullptr);
-        if (size == 0)
-        {
-            head = curr;
-            tail = curr;
-            size++;
-            return true;
-        }
-        else if (size < capacity)
-        {
-            head->prev = curr;
-            curr->next = head;
-            head = curr;
-            size++;
-            return true;
-        }
-        return false;
-    }
-    void dequeue()
-    {
-        if (this->head == nullptr)
-        {
-            return;
-        }
-        ItemNode *node = this->head;
-        if (this->size == 1)
-        {
-            this->head = nullptr;
-        }
-        else
-        {
-            this->head = this->head->next;
-        }
-        this->size--;
-        delete node;
-    }
-    // void deleteAllPassingCard(){
-    //     BaseItem* it = this->head;
-    //     while (it!= nullptr) {
-    //         if (it->getType() == PASSING_CARD) {
-    //             bring_to_head(it);
-    //             this->dequeue();
-    //         } else {
-    //             it = it->next;
-    //         }
-    //     }
-    // }
-    int getPassingCard()
-    {
-        int result = 0;
-        ItemNode *node = this->head;
-        while (node)
-        {
-            if (node->item->getType() == ItemType::PASSING_CARD)
-            {
-                result++;
-            }
-            node = node->next;
-        }
-        return result;
-    }
-};
-class WatsonBag : public BaseBag
-{
-private:
-    ItemNode *head;
-    ItemNode *tail;
+// public:
+//     SherlockBag(Sherlock *shrk)
+//     {
+//         this->obj = (Character *)shrk;
+//         this->size = 0;
+//         this->capacity = 13;
+//         this->head = nullptr;
+//     }
+//     BaseItem *get() override;
+//     string str() const override
+//     {
+//         string arr[5] = {"MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
+//         string result = "Bag[count=" + to_string(this->size) + ";";
+//         ItemNode *node = this->head;
+//         if (node == nullptr)
+//             return result + "]";
+//         while (node->next != nullptr)
+//         {
+//             result += arr[node->item->getType()] + ", ";
+//         }
+//         result += arr[node->item->getType()] + "]";
+//     }
+//     BaseItem *get(ItemType type) override
+//     {
+//         ItemNode *curr = this->head;
+//         while (curr != nullptr)
+//         {
+//             if (curr->item->getType() == type)
+//             {
+//                 return curr->item;
+//             }
+//         }
+//         return nullptr;
+//     }
+//     bool insert(BaseItem *item) override
+//     {
+//         ItemNode *curr = new ItemNode(item, nullptr, nullptr);
+//         if (size == 0)
+//         {
+//             head = curr;
+//             tail = curr;
+//             size++;
+//             return true;
+//         }
+//         else if (size < capacity)
+//         {
+//             head->prev = curr;
+//             curr->next = head;
+//             head = curr;
+//             size++;
+//             return true;
+//         }
+//         return false;
+//     }
+//     void dequeue()
+//     {
+//         if (this->head == nullptr)
+//         {
+//             return;
+//         }
+//         ItemNode *node = this->head;
+//         if (this->size == 1)
+//         {
+//             this->head = nullptr;
+//         }
+//         else
+//         {
+//             this->head = this->head->next;
+//         }
+//         this->size--;
+//         delete node;
+//     }
+//     // void deleteAllPassingCard(){
+//     //     BaseItem* it = this->head;
+//     //     while (it!= nullptr) {
+//     //         if (it->getType() == PASSING_CARD) {
+//     //             bring_to_head(it);
+//     //             this->dequeue();
+//     //         } else {
+//     //             it = it->next;
+//     //         }
+//     //     }
+//     // }
+//     int getPassingCard()
+//     {
+//         int result = 0;
+//         ItemNode *node = this->head;
+//         while (node)
+//         {
+//             if (node->item->getType() == ItemType::PASSING_CARD)
+//             {
+//                 result++;
+//             }
+//             node = node->next;
+//         }
+//         return result;
+//     }
+// };
+// class WatsonBag : public BaseBag
+// {
+// private:
+//     ItemNode *head;
+//     ItemNode *tail;
 
-public:
-    WatsonBag(Watson *wast)
-    {
-        this->obj = (Character *)wast;
-        this->size = 0;
-        this->capacity = 15;
-        this->head = nullptr;
-    }
-    BaseItem *get() override;
-    string str() const override
-    {
-        string arr[5] = {"MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
-        string result = "Bag[count=" + to_string(this->size) + ";";
-        ItemNode *node = this->head;
-        if (node == nullptr)
-            return result + "]";
-        while (node->next != nullptr)
-        {
-            result += arr[node->item->getType()] + ", ";
-        }
-        result += arr[node->item->getType()] + "]";
-    }
-    BaseItem *get(ItemType type) override
-    {
-        ItemNode *curr = this->head;
-        while (curr != nullptr)
-        {
-            if (curr->item->getType() == type)
-            {
-                return curr->item;
-            }
-        }
-        return nullptr;
-    }
-    bool insert(BaseItem *item) override
-    {
-        ItemNode *curr = new ItemNode(item, nullptr, nullptr);
-        if (size == 0)
-        {
-            head = curr;
-            tail = curr;
-            size++;
-            return true;
-        }
-        else if (size < capacity)
-        {
-            head->prev = curr;
-            curr->next = head;
-            head = curr;
-            size++;
-            return true;
-        }
-        return false;
-    }
-};
+// public:
+//     WatsonBag(Watson *wast)
+//     {
+//         this->obj = (Character *)wast;
+//         this->size = 0;
+//         this->capacity = 15;
+//         this->head = nullptr;
+//     }
+//     BaseItem *get() override;
+//     string str() const override
+//     {
+//         string arr[5] = {"MagicBook", "EnergyDrink", "FirstAid", "ExcemptionCard", "PassingCard"};
+//         string result = "Bag[count=" + to_string(this->size) + ";";
+//         ItemNode *node = this->head;
+//         if (node == nullptr)
+//             return result + "]";
+//         while (node->next != nullptr)
+//         {
+//             result += arr[node->item->getType()] + ", ";
+//         }
+//         result += arr[node->item->getType()] + "]";
+//     }
+//     BaseItem *get(ItemType type) override
+//     {
+//         ItemNode *curr = this->head;
+//         while (curr != nullptr)
+//         {
+//             if (curr->item->getType() == type)
+//             {
+//                 return curr->item;
+//             }
+//         }
+//         return nullptr;
+//     }
+//     bool insert(BaseItem *item) override
+//     {
+//         ItemNode *curr = new ItemNode(item, nullptr, nullptr);
+//         if (size == 0)
+//         {
+//             head = curr;
+//             tail = curr;
+//             size++;
+//             return true;
+//         }
+//         else if (size < capacity)
+//         {
+//             head->prev = curr;
+//             curr->next = head;
+//             head = curr;
+//             size++;
+//             return true;
+//         }
+//         return false;
+//     }
+// };
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ////////////////////////////////////////////////
