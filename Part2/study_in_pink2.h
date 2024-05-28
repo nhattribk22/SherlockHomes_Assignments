@@ -44,6 +44,7 @@ class TestStudyInPink;
 
 enum ItemType
 {
+
     MAGIC_BOOK,
     ENERGY_DRINK,
     FIRST_AID,
@@ -65,12 +66,14 @@ enum RobotType
 };
 
 bool isCharacter(char c);
-bool isNumber(char c) ;
+bool isNumber(char c);
 int sumChar(long long &num);
 long long mainNum(long long num);
 
 class MapElement
 {
+    friend class TestStudyInPink;
+
 protected:
     ElementType type;
 
@@ -82,18 +85,24 @@ public:
 
 class Path : public MapElement
 {
+    friend class TestStudyInPink;
+
 public:
     Path() : MapElement(PATH){};
 };
 
 class Wall : public MapElement
 {
+    friend class TestStudyInPink;
+
 public:
     Wall() : MapElement(WALL){};
 };
 
 class FakeWall : public MapElement
 {
+    friend class TestStudyInPink;
+
 private:
     int exp_req;
 
@@ -106,6 +115,8 @@ public:
 };
 class Position
 {
+    friend class TestStudyInPink;
+
 private:
     int r, c;
 
@@ -156,6 +167,8 @@ public:
 };
 class Map
 {
+    friend class TestStudyInPink;
+
 private:
     int num_rows, num_cols;
     MapElement ***map;
@@ -221,6 +234,8 @@ public:
 
 class MovingObject
 {
+    friend class TestStudyInPink;
+
 protected:
     int index;
     Position pos;
@@ -243,7 +258,8 @@ public:
     {
         return init;
     }
-    string getName(){
+    string getName()
+    {
         return name;
     }
 };
@@ -251,6 +267,8 @@ public:
 
 class Character : public MovingObject
 {
+    friend class TestStudyInPink;
+
 public:
     Character(int index, const Position pos, Map *map, const string &name) : MovingObject(index, pos, map, name) {}
     // int temp_moving = 0;
@@ -258,6 +276,8 @@ public:
 
 class Sherlock : public Character /* TODO */
 {
+    friend class TestStudyInPink;
+
 private:
     // TODO
     string moving_rule;
@@ -315,24 +335,28 @@ public:
     }
     void setInitHp(int hp)
     {
-        if(hp > 500){
+        if (hp > 500)
+        {
             this->hp = 500;
         }
-        else if(hp < 0){
+        else if (hp < 0)
+        {
             this->hp = 0;
         }
-        else 
+        else
             this->hp = hp;
     }
     void setInitExp(int exp)
     {
-        if(exp > 900){
+        if (exp > 900)
+        {
             this->exp = 900;
         }
-        else if(exp < 0){
+        else if (exp < 0)
+        {
             this->exp = 0;
         }
-        else 
+        else
             this->exp = exp;
     }
     int getInitHp() const
@@ -348,6 +372,8 @@ public:
 
 class Watson : public Character /* TODO */
 {
+    friend class TestStudyInPink;
+
 private:
     // TODO
     string moving_rule;
@@ -408,24 +434,28 @@ public:
     }
     void setInitHp(int hp)
     {
-        if(hp > 500){
+        if (hp > 500)
+        {
             this->hp = 500;
         }
-        else if(hp < 0){
+        else if (hp < 0)
+        {
             this->hp = 0;
         }
-        else 
+        else
             this->hp = hp;
     }
     void setInitExp(int exp)
     {
-        if(exp > 900){
+        if (exp > 900)
+        {
             this->exp = 900;
         }
-        else if(exp < 0){
+        else if (exp < 0)
+        {
             this->exp = 0;
         }
-        else 
+        else
             this->exp = exp;
     }
     int getInitHp() const
@@ -440,6 +470,8 @@ public:
 };
 class Criminal : public MovingObject
 {
+    friend class TestStudyInPink;
+
 private:
     Sherlock *sherlock;
     Watson *watson;
@@ -499,6 +531,8 @@ public:
 
 class ArrayMovingObject
 {
+    friend class TestStudyInPink;
+
 private:
     // TODO
     MovingObject **arr;
@@ -558,6 +592,8 @@ public:
 
 class Configuration
 {
+    friend class TestStudyInPink;
+
 private:
     // Các thuộc tính riêng tư
     int map_num_rows, map_num_cols;
@@ -778,6 +814,8 @@ public:
 
 class StudyPinkProgram
 {
+    friend class TestStudyInPink;
+
 private:
     // Sample attributes
     Configuration *config;
@@ -788,8 +826,8 @@ private:
 
     Map *map;
     ArrayMovingObject *arr_mv_objs;
-    SherlockBag * sherlockBag;
-    WatsonBag * watsonBag;
+    SherlockBag *sherlockBag;
+    WatsonBag *watsonBag;
 
 public:
     StudyPinkProgram(const string &config_file_path);
@@ -842,7 +880,7 @@ public:
         printResult();
     }
     void SherMeet(MovingObject *sher, MovingObject *object);
-    void WatMeet(MovingObject* wat, MovingObject *object);
+    void WatMeet(MovingObject *wat, MovingObject *object);
     ~StudyPinkProgram();
 };
 
@@ -856,25 +894,31 @@ protected:
 public:
     string typeRobot[4] = {"C", "S", "W", "SW"};
     Robot(int index, const Position &int_pos, Map *map, string name)
-        : MovingObject(index, int_pos, map, name){
-            Position init = this->getInit();
-        this->NUM = mainNum(init.getCol()*init.getRow());
-        if (this->NUM <= 1){
+        : MovingObject(index, int_pos, map, name)
+    {
+        Position init = this->getInit();
+        this->NUM = mainNum(init.getCol() * init.getRow());
+        if (this->NUM <= 1)
+        {
             this->items = new MagicBook();
-        } 
-        else if (this->NUM <= 3) {
+        }
+        else if (this->NUM <= 3)
+        {
             this->items = new EnergyDrink();
         }
-        else if (this->NUM <= 5) {
+        else if (this->NUM <= 5)
+        {
             this->items = new FirstAid();
         }
-        else if (this->NUM <= 7) {
+        else if (this->NUM <= 7)
+        {
             this->items = new ExcemptionCard();
         }
-        else {
+        else
+        {
             this->items = new PassingCard();
         }
-        }
+    }
 
     void setRobotType(RobotType robot_type)
     {
@@ -1123,18 +1167,20 @@ class PassingCard : public BaseItem
 {
 private:
     string challenge = "";
+
 public:
-    bool canUse(Character *obj, Robot *robot) override;
+        bool canUse(Character *obj, Robot *robot) override;
     void use(Character *obj, Robot *robot) override;
     ItemType getType() const override;
 };
 // Túi đồ
-class ItemNode{
+class ItemNode
+{
 public:
-    BaseItem* item;
-    ItemNode * next;
-    ItemNode * prev;
-    ItemNode(BaseItem* item, ItemNode* next, ItemNode* prev) : item(item), next(next), prev(prev){}
+    BaseItem *item;
+    ItemNode *next;
+    ItemNode *prev;
+    ItemNode(BaseItem *item, ItemNode *next, ItemNode *prev) : item(item), next(next), prev(prev) {}
 };
 class BaseBag
 {
@@ -1160,6 +1206,7 @@ class SherlockBag : public BaseBag
 private:
     ItemNode *head;
     ItemNode *tail;
+
 public:
     SherlockBag(Sherlock *shrk)
     {
@@ -1214,14 +1261,19 @@ public:
         }
         return false;
     }
-    void dequeue() {
-        if (this->head == nullptr) {
+    void dequeue()
+    {
+        if (this->head == nullptr)
+        {
             return;
         }
-        ItemNode * node = this->head;
-        if (this->size == 1){
+        ItemNode *node = this->head;
+        if (this->size == 1)
+        {
             this->head = nullptr;
-        } else {
+        }
+        else
+        {
             this->head = this->head->next;
         }
         this->size--;
@@ -1238,11 +1290,14 @@ public:
     //         }
     //     }
     // }
-    int getPassingCard(){
+    int getPassingCard()
+    {
         int result = 0;
-        ItemNode* node = this->head;
-        while(node) {
-            if (node->item->getType() == ItemType::PASSING_CARD) {
+        ItemNode *node = this->head;
+        while (node)
+        {
+            if (node->item->getType() == ItemType::PASSING_CARD)
+            {
                 result++;
             }
             node = node->next;
@@ -1254,7 +1309,8 @@ class WatsonBag : public BaseBag
 {
 private:
     ItemNode *head;
-    ItemNode* tail;
+    ItemNode *tail;
+
 public:
     WatsonBag(Watson *wast)
     {
